@@ -1,27 +1,49 @@
 package config
 
 import (
+	"ecomm/pkg/logger"
 	"fmt"
 	"os"
-
-	"ecomm/pkg/logger"
 
 	"github.com/joho/godotenv"
 )
 
-func LoadConfig() {
-	err := godotenv.Load(".env")
+type DbaseCfg struct {
+	DBUser string
+	DBPass string
+	DBHost string
+	DBPort string
+	DBName string
+}
+
+// Загрузка данных из ENV
+func EnvLoad(key string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		logger.Log.Fatalf("env variable %s is not set", key)
+	}
+	return value
+}
+
+func LoadEnv() {
+	err := godotenv.Load("../.env")
 	if err != nil {
-		logger.LogError("Error loading .env", err)
+		logger.LogError("Error loading .env file", err)
 	}
 }
 
-func PsqlCfg() string {
-	dbUser := os.Getenv("DB_USER")
-	dbPass := os.Getenv("DB_PASSWORD")
-	dbHost := os.Getenv("DB_HOST")
-	dbPort := os.Getenv("DB_PORT")
-	dbName := os.Getenv("DB_NAME")
+// Собираю конфиг
+func Config() *DbaseCfg {
+	return &DbaseCfg{
+		DBUser: EnvLoad("DB_USER"),
+		DBPass: EnvLoad("DB_PASSWORD"),
+		DBHost: EnvLoad("DB_HOST"),
+		DBPort: EnvLoad("DB_PORT"),
+		DBName: EnvLoad("DB_NAME"),
+	}
+}
 
-	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", dbUser, dbPass, dbHost, dbPort, dbName)
+// URL
+func (c *DbaseCfg) DBaseURL() string {
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", c.DBUser, c.DBPass, c.DBHost, c.DBPort, c.DBName)
 }
