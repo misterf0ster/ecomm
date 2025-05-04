@@ -4,10 +4,10 @@ import (
 	psql "ecomm/pkg/db"
 )
 
-type UserHandler struct {
+type Handler struct {
 	DB *psql.DB
 }
 
-func CreateUserHandler(db *psql.DB) *UserHandler {
-	return &UserHandler{DB: db}
+func CreateHandler(db *psql.DB) *Handler {
+	return &Handler{DB: db}
 }
